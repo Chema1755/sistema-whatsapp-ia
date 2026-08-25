@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Respuesta Automática con IA para WhatsApp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15171B;
+    --ink-2:#1E2127;
+    --paper:#F6F4EF;
+    --cobalt:#3E5DE0;
+    --cobalt-soft:#B9C4F5;
+    --gold:#E7B856;
+    --slate:#9399A8;
+    --white:#FFFFFF;
+    --line: rgba(255,255,255,0.08);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--ink);
+    color:var(--white);
+    font-family:'Inter', sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:1160px; margin:0 auto; padding:0 24px;}
+  h1,h2,h3{font-family:'Fraunces', serif; font-weight:600; letter-spacing:-0.01em;}
+  a{color:inherit; text-decoration:none;}
+  .mono{font-family:'IBM Plex Mono', monospace;}
+
+  /* NAV */
+  nav{
+    position:sticky; top:0; z-index:50;
+    background:rgba(21,23,27,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{display:flex; align-items:center; justify-content:space-between; height:72px;}
+  .brand{font-family:'Fraunces', serif; font-size:19px; font-weight:600;}
+  .brand span{color:var(--gold);}
+  .nav-cta{
+    background:var(--cobalt); color:var(--white); padding:10px 20px;
+    border-radius:100px; font-size:14px; font-weight:600;
+    transition:transform .15s ease, background .15s ease;
+  }
+  .nav-cta:hover{background:#4E6BF0; transform:translateY(-1px);}
+
+  /* HERO */
+  .hero{padding:88px 0 96px; position:relative; overflow:hidden;}
+  .hero .wrap{display:grid; grid-template-columns:1.1fr 0.9fr; gap:56px; align-items:center;}
+  .eyebrow{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'IBM Plex Mono', monospace; font-size:12.5px; letter-spacing:0.06em;
+    color:var(--gold); text-transform:uppercase; margin-bottom:22px;
+  }
+  .eyebrow::before{content:''; width:6px; height:6px; border-radius:50%; background:var(--gold); display:inline-block;}
+  h1.headline{font-size:52px; line-height:1.06; margin-bottom:22px;}
+  h1.headline em{font-style:italic; color:var(--cobalt-soft);}
+  .sub{font-size:18px; color:var(--slate); max-width:480px; margin-bottom:34px;}
+  .cta-row{display:flex; gap:16px; align-items:center; flex-wrap:wrap;}
+  .btn-primary{
+    background:var(--gold); color:var(--ink); font-weight:700; font-size:15.5px;
+    padding:16px 30px; border-radius:100px; display:inline-block;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .btn-primary:hover{transform:translateY(-2px); box-shadow:0 10px 30px rgba(231,184,86,0.25);}
+  .btn-ghost{
+    font-size:14.5px; color:var(--slate); display:flex; align-items:center; gap:8px;
+  }
+  .btn-ghost svg{transition:transform .15s ease;}
+  .btn-ghost:hover svg{transform:translateX(3px);}
+
+  /* PHONE MOCK — signature element */
+  .phone{
+    background:var(--ink-2); border:1px solid var(--line); border-radius:32px;
+    padding:14px; box-shadow:0 30px 80px rgba(0,0,0,0.45); max-width:340px; margin:0 auto;
+  }
+  .phone-screen{
+    background:#0E1014; border-radius:22px; padding:20px 16px; height:460px;
+    display:flex; flex-direction:column; gap:10px; overflow:hidden; position:relative;
+  }
+  .phone-header{
+    display:flex; align-items:center; gap:10px; padding-bottom:12px; border-bottom:1px solid var(--line);
+    margin-bottom:6px;
+  }
+  .avatar{width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg, var(--cobalt), var(--gold)); flex-shrink:0;}
+  .ph-name{font-size:13.5px; font-weight:600;}
+  .ph-status{font-size:11px; color:#5FD98A; font-family:'IBM Plex Mono', monospace;}
+  .bubble{
+    max-width:78%; padding:10px 14px; border-radius:16px; font-size:13px; line-height:1.4;
+    opacity:0; transform:translateY(6px); animation:rise .45s ease forwards;
+  }
+  .bubble.in{ background:#23262D; align-self:flex-start; border-bottom-left-radius:4px; }
+  .bubble.out{ background:var(--cobalt); align-self:flex-end; border-bottom-right-radius:4px; }
+  .bubble.b1{animation-delay:.3s;}
+  .bubble.b2{animation-delay:1.4s;}
+  .bubble.b3{animation-delay:2.5s;}
+  .bubble.b4{animation-delay:3.6s;}
+  .bubble.b5{animation-delay:4.7s;}
+  @keyframes rise{ to{opacity:1; transform:translateY(0);} }
+  .typing{
+    align-self:flex-start; display:flex; gap:4px; padding:10px 14px; background:#23262D;
+    border-radius:16px; border-bottom-left-radius:4px; opacity:0; animation:rise .3s ease forwards; animation-delay:.9s;
+  }
+  .typing span{width:6px; height:6px; border-radius:50%; background:var(--slate); animation:bounce 1s infinite;}
+  .typing span:nth-child(2){animation-delay:.15s;} .typing span:nth-child(3){animation-delay:.3s;}
+  @keyframes bounce{ 0%,60%,100%{transform:translateY(0);} 30%{transform:translateY(-4px);} }
+
+  /* SECTION shared */
+  section{padding:80px 0;}
+  .section-inner{border-top:1px solid var(--line); padding-top:64px;}
+  .kicker{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; text-transform:uppercase;
+    letter-spacing:0.08em; color:var(--gold); margin-bottom:14px; display:block;
+  }
+  h2.section-title{font-size:36px; max-width:640px; margin-bottom:48px; line-height:1.15;}
+
+  /* PROBLEM cards */
+  .grid-3{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  .card{
+    background:var(--ink-2); border:1px solid var(--line); border-radius:16px; padding:28px;
+  }
+  .card h3{font-size:19px; margin-bottom:12px; color:var(--gold);}
+  .card p{color:var(--slate); font-size:14.5px; line-height:1.55;}
+
+  /* SOLUTION steps */
+  .steps{display:grid; grid-template-columns:repeat(3,1fr); gap:20px;}
+  .step-num{font-family:'IBM Plex Mono', monospace; color:var(--cobalt-soft); font-size:13px; margin-bottom:10px;}
+  .step h3{font-size:18px; margin-bottom:10px;}
+  .step p{color:var(--slate); font-size:14.5px;}
+
+  /* VSL video */
+  .video-frame{
+    position:relative; padding-top:56.25%; border-radius:20px; overflow:hidden;
+    background:var(--ink-2); border:1px solid var(--line);
+  }
+  .video-frame iframe{position:absolute; inset:0; width:100%; height:100%; border:0;}
+
+  /* INCLUDES */
+  .includes{display:grid; grid-template-columns:repeat(2,1fr); gap:20px;}
+  .inc-card{
+    background:var(--ink-2); border:1px solid var(--line); border-radius:16px; padding:26px;
+    display:flex; gap:16px; align-items:flex-start;
+  }
+  .inc-icon{
+    width:40px; height:40px; border-radius:10px; background:rgba(62,93,224,0.18);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; color:var(--cobalt-soft);
+  }
+  .inc-card h3{font-size:16.5px; margin-bottom:6px;}
+  .inc-card p{color:var(--slate); font-size:13.5px;}
+
+  /* TIMELINE */
+  .timeline{display:flex; flex-direction:column;}
+  .t-row{display:flex; gap:28px; padding:22px 0; border-bottom:1px solid var(--line); align-items:center;}
+  .t-row:last-child{border-bottom:none;}
+  .t-week{font-family:'IBM Plex Mono', monospace; color:var(--gold); font-size:14px; min-width:120px;}
+  .t-desc{color:var(--slate); font-size:15px;}
+
+  /* GUARANTEE */
+  .guarantee-box{
+    background:linear-gradient(135deg, rgba(62,93,224,0.12), rgba(231,184,86,0.08));
+    border:1px solid var(--line); border-radius:20px; padding:44px; text-align:left;
+  }
+  .guarantee-box h2{font-size:28px; margin-bottom:16px; max-width:520px;}
+  .guarantee-box p{color:var(--slate); font-size:16px; max-width:560px;}
+  .guarantee-box strong{color:var(--white);}
+
+  /* PRICE */
+  .price-box{
+    background:var(--ink-2); border:1px solid var(--line); border-radius:24px;
+    padding:48px; text-align:center; max-width:480px; margin:0 auto;
+  }
+  .price-amount{font-family:'Fraunces', serif; font-size:56px; color:var(--gold); font-weight:600;}
+  .price-note{color:var(--slate); font-size:14px; margin-top:6px; margin-bottom:28px;}
+  .price-list{text-align:left; margin-bottom:32px;}
+  .price-list div{display:flex; gap:10px; font-size:14.5px; padding:8px 0; color:#DADDE3;}
+  .price-list div::before{content:'✓'; color:var(--cobalt-soft); font-weight:700;}
+  .btn-primary.full{display:block; width:100%; text-align:center;}
+
+  footer{border-top:1px solid var(--line); padding:36px 0; color:var(--slate); font-size:13px; text-align:center;}
+
+  @media (max-width:860px){
+    .hero .wrap{grid-template-columns:1fr; gap:48px;}
+    h1.headline{font-size:38px;}
+    .grid-3, .steps, .includes{grid-template-columns:1fr;}
+    .phone{max-width:280px;}
+    .t-row{flex-direction:column; align-items:flex-start; gap:6px;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">Sistema<span>WA</span>·IA</div>
+    <a href="#video" class="nav-cta">Ver cómo funciona</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div>
+      <span class="eyebrow">Entrenamiento gratuito</span>
+      <h1 class="headline">Tu WhatsApp que <em>responde, califica<br>y agenda</em> solo — 24 horas al día</h1>
+      <p class="sub">El sistema con IA que usan negocios de salud, bienes raíces, fitness y retail para dejar de perder clientes por no contestar a tiempo.</p>
+      <div class="cta-row">
+        <a href="#video" class="btn-primary">Ver el entrenamiento completo</a>
+        <a href="#programa" class="btn-ghost">Ver qué incluye
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        </a>
+      </div>
+    </div>
+    <div class="phone" aria-hidden="true">
+      <div class="phone-screen">
+        <div class="phone-header">
+          <div class="avatar"></div>
+          <div>
+            <div class="ph-name">Asistente IA</div>
+            <div class="ph-status">● en línea</div>
+          </div>
+        </div>
+        <div class="bubble in b1">Hola, vi que hacen limpieza dental. ¿Tienen espacio esta semana? 🦷</div>
+        <div class="typing"><span></span><span></span><span></span></div>
+        <div class="bubble out b2">¡Hola! Claro que sí 😊 ¿Sería tu primera visita con nosotros o ya eres paciente?</div>
+        <div class="bubble in b3">Primera vez</div>
+        <div class="bubble out b4">Perfecto. Tengo disponible martes 10am o jueves 4pm, ¿cuál prefieres?</div>
+        <div class="bubble in b5">Jueves 4pm 👍</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="problema">
+  <div class="wrap section-inner">
+    <span class="kicker">El problema</span>
+    <h2 class="section-title">Cada mensaje sin responder es un cliente que se va con otro negocio</h2>
+    <div class="grid-3">
+      <div class="card">
+        <h3>Respuesta lenta</h3>
+        <p>Muchos clientes simplemente le escriben al siguiente negocio de la lista si tardas en contestar.</p>
+      </div>
+      <div class="card">
+        <h3>Gana quien responde primero</h3>
+        <p>No siempre gana quien tiene el mejor precio o el mejor servicio — gana quien contesta a tiempo.</p>
+      </div>
+      <div class="card">
+        <h3>Fuera de horario</h3>
+        <p>Los mensajes no dejan de llegar cuando cierras. Es justo cuando más se pierden.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="solucion">
+  <div class="wrap section-inner">
+    <span class="kicker">La solución</span>
+    <h2 class="section-title">Un asistente de IA que responde, califica y agenda por ti</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <h3>Responde al instante</h3>
+        <p>El cliente escribe y recibe respuesta en segundos, a cualquier hora del día.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <h3>Califica automáticamente</h3>
+        <p>Identifica quién tiene intención real de compra antes de pasarte el contacto.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <h3>Agenda la cita</h3>
+        <p>Ofrece horarios disponibles y confirma la cita sin que muevas un dedo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="video">
+  <div class="wrap section-inner">
+    <span class="kicker">Entrenamiento gratuito</span>
+    <h2 class="section-title">Mira exactamente cómo funciona el sistema completo</h2>
+    <div class="video-frame">
+      <!-- Reemplaza el src con el link de tu video (YouTube no listado, Vimeo, etc.) -->
+      <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Entrenamiento" allowfullscreen></iframe>
+    </div>
+  </div>
+</section>
+
+<section id="programa">
+  <div class="wrap section-inner">
+    <span class="kicker">Qué incluye el programa</span>
+    <h2 class="section-title">No es un video. Es un sistema completo con acompañamiento</h2>
+    <div class="includes">
+      <div class="inc-card">
+        <div class="inc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+        </div>
+        <div>
+          <h3>Entrenamiento completo</h3>
+          <p>Módulos paso a paso para implementar el sistema, sin conocimientos técnicos previos.</p>
+        </div>
+      </div>
+      <div class="inc-card">
+        <div class="inc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1"/></svg>
+        </div>
+        <div>
+          <h3>Prompts y scripts listos</h3>
+          <p>Plantillas de IA, flujos de automatización y mensajes de prospección probados.</p>
+        </div>
+      </div>
+      <div class="inc-card">
+        <div class="inc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div>
+          <h3>Comunidad privada</h3>
+          <p>Acceso a un grupo cerrado en Telegram con soporte y contenido nuevo cada semana.</p>
+        </div>
+      </div>
+      <div class="inc-card">
+        <div class="inc-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+        </div>
+        <div>
+          <h3>Seguimiento y feedback</h3>
+          <p>Revisión de tu implementación y resolución de dudas durante todo el programa.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="estructura">
+  <div class="wrap section-inner">
+    <span class="kicker">Cómo funciona el programa</span>
+    <h2 class="section-title">Un ciclo de acompañamiento, no un contenido que ves una vez</h2>
+    <div class="timeline">
+      <div class="t-row"><div class="t-week">Semana 1–2</div><div class="t-desc">Configuras tu sistema de IA en WhatsApp con soporte directo del grupo.</div></div>
+      <div class="t-row"><div class="t-week">Semana 3–4</div><div class="t-desc">Ajustas prompts y flujos según tus primeros resultados reales.</div></div>
+      <div class="t-row"><div class="t-week">Semana 5–6</div><div class="t-desc">Optimización final y plan para escalarlo dentro de tu negocio.</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="garantia">
+  <div class="wrap section-inner">
+    <div class="guarantee-box">
+      <span class="kicker">Tu respaldo</span>
+      <h2>Implementas el sistema conmigo, no lo intentas solo</h2>
+      <p>Durante el programa tienes soporte directo para resolver cualquier bloqueo en la implementación. <strong>Si sigues el proceso y no logras tener tu sistema funcionando al final del programa, seguimos trabajando juntos sin costo adicional hasta lograrlo.</strong></p>
+    </div>
+  </div>
+</section>
+
+<section id="precio">
+  <div class="wrap section-inner">
+    <span class="kicker" style="text-align:center; display:block;">La inversión</span>
+    <h2 class="section-title" style="text-align:center; margin:0 auto 40px;">Acceso completo al programa</h2>
+    <div class="price-box">
+      <div class="price-amount">$3,000 USD</div>
+      <div class="price-note">Pago único · Cupos limitados por cohorte</div>
+      <div class="price-list">
+        <div>Entrenamiento completo</div>
+        <div>Prompts y plantillas</div>
+        <div>Comunidad privada en Telegram</div>
+        <div>Soporte durante el programa</div>
+      </div>
+      <button id="btn-pagar" class="btn-primary full" style="border:none; cursor:pointer; font-family:inherit;">Acceder al programa</button>
+      <p id="pagar-status" style="color:var(--slate); font-size:13px; margin-top:14px;"></p>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Este botón llama a tu función serverless (api/create-preference.js),
+  // que crea el link de pago con la redirección automática configurada,
+  // y manda al comprador directo a Mercado Pago.
+  document.getElementById('btn-pagar').addEventListener('click', async function () {
+    const btn = this;
+    const status = document.getElementById('pagar-status');
+    btn.textContent = 'Cargando...';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/create-preference', { method: 'POST' });
+      const data = await res.json();
+      if (data.init_point) {
+        window.location.href = data.init_point;
+      } else {
+        throw new Error('Sin init_point');
+      }
+    } catch (err) {
+      status.textContent = 'Hubo un problema al generar el pago. Intenta de nuevo en unos segundos.';
+      btn.textContent = 'Acceder al programa';
+      btn.disabled = false;
+    }
+  });
+</script>
+
+<footer>
+  <div class="wrap">© Sistema WA·IA — Todos los derechos reservados</div>
+</footer>
+
+</body>
+</html>

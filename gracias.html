@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>¡Bienvenido al programa!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#15171B; --ink-2:#1E2127; --cobalt:#3E5DE0; --cobalt-soft:#B9C4F5;
+    --gold:#E7B856; --slate:#9399A8; --white:#FFFFFF; --line: rgba(255,255,255,0.08);
+    --tg:#2AABEE;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    background:var(--ink); color:var(--white); font-family:'Inter', sans-serif;
+    min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;
+  }
+  .card{
+    max-width:520px; width:100%; text-align:center; background:var(--ink-2);
+    border:1px solid var(--line); border-radius:24px; padding:56px 40px;
+  }
+  .check{
+    width:64px; height:64px; border-radius:50%; background:rgba(95,217,138,0.15);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 24px;
+  }
+  h1{font-family:'Fraunces', serif; font-size:30px; font-weight:600; margin-bottom:14px; line-height:1.2;}
+  p.sub{color:var(--slate); font-size:15.5px; margin-bottom:36px; line-height:1.55;}
+  .step{
+    text-align:left; display:flex; gap:14px; padding:16px 0; border-top:1px solid var(--line);
+  }
+  .step:last-of-type{border-bottom:1px solid var(--line); margin-bottom:32px;}
+  .step-num{
+    font-family:'IBM Plex Mono', monospace; color:var(--gold); font-size:13px;
+    width:22px; flex-shrink:0; padding-top:2px;
+  }
+  .step p{color:#DADDE3; font-size:14px; line-height:1.5;}
+  .btn-tg{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    background:var(--tg); color:var(--white); font-weight:700; font-size:16px;
+    padding:16px 24px; border-radius:100px; transition:transform .15s ease;
+  }
+  .btn-tg:hover{transform:translateY(-2px);}
+  .note{color:var(--slate); font-size:12.5px; margin-top:18px;}
+  a{text-decoration:none; color:inherit;}
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div class="check">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#5FD98A" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+  </div>
+  <h1>¡Tu pago se realizó con éxito!</h1>
+  <p class="sub">Ya tienes acceso al programa completo. Solo falta un paso para unirte a la comunidad y recibir tu material.</p>
+
+  <div class="step">
+    <div class="step-num">01</div>
+    <p>Únete al grupo privado de Telegram con el botón de abajo.</p>
+  </div>
+  <div class="step">
+    <div class="step-num">02</div>
+    <p>Ahí encontrarás el mensaje de bienvenida con el documento de plantillas y el calendario del programa.</p>
+  </div>
+
+  <!-- Reemplaza el href con el link de invitación de tu grupo de Telegram -->
+  <a href="https://t.me/REEMPLAZAR-CON-TU-LINK" class="btn-tg" target="_blank" rel="noopener">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.3-.07-.46-.52-.16L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/></svg>
+    Unirme al grupo de Telegram
+  </a>
+  <p class="note">Si tienes algún problema para acceder, escríbenos y te ayudamos de inmediato.</p>
+</div>
+
+</body>
+</html>

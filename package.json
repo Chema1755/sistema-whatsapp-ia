@@ -1,0 +1,6 @@
+{
+  "name": "sistema-whatsapp-ia-checkout",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Backend minimo para crear links de pago de Mercado Pago con redireccion automatica"
+}
